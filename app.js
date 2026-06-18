@@ -13,6 +13,15 @@ const copyPromptBtn = document.getElementById('copy-prompt-btn');
 
 // Initialize
 async function init() {
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js').catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+    }
+
     try {
         const response = await fetch(ichingUrl);
         ichingData = await response.json();
@@ -21,6 +30,18 @@ async function init() {
         instruction.innerHTML = '加载数据失败，请确保您在使用本地服务器运行此应用。';
     }
 }
+
+// Question UI Logic
+const questionInput = document.getElementById('question-input');
+const chips = document.querySelectorAll('.chip');
+
+chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+        questionInput.value = chip.innerText;
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+    });
+});
 
 // Generate entropy-based coin toss (2 or 3)
 function tossCoin() {
@@ -143,7 +164,8 @@ function processResult() {
 }
 
 function setupCopyPrompt(origHex, changedHex, movingIndices) {
-    let prompt = `你现在是一位非常有经验老道的易学师父（解签人）。我用掌中易刚刚起了一卦，心中所求之事是【请替换为您所求之事】。\n\n`;
+    const userQuestion = questionInput.value.trim() || '某事';
+    let prompt = `你现在是一位非常有经验老道的易学师父（解签人）。我用掌中易刚刚起了一卦，心中所求之事是【${userQuestion}】。\n\n`;
     prompt += `我得到的本卦是《${origHex.name}》卦，卦辞是：“${origHex.scripture}”。\n`;
     
     if (movingIndices.length > 0) {

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>掌中易 - Zhang Zhong Yi</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
@@ -16,6 +17,20 @@
         </header>
 
         <main class="main-content">
+            <div class="question-area">
+                <input type="text" id="question-input" placeholder="请输入您所求之事..." autocomplete="off">
+                <div class="suggestion-chips">
+                    <span class="chip">感情</span>
+                    <span class="chip">婚姻</span>
+                    <span class="chip">事业</span>
+                    <span class="chip">财运</span>
+                    <span class="chip">跳槽创业</span>
+                    <span class="chip">考试升学</span>
+                    <span class="chip">官司诉讼</span>
+                    <span class="chip">健康</span>
+                </div>
+            </div>
+
             <div id="hexagram-container" class="hexagram-container">
                 <!-- Lines will be dynamically generated here from bottom to top -->
                 <div class="placeholder-text" id="instruction">请静心默念所求之事<br>点击下方按钮起卦</div>

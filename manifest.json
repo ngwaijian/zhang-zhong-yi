@@ -1,0 +1,16 @@
+{
+  "name": "掌中易 (Zhang Zhong Yi)",
+  "short_name": "掌中易",
+  "description": "I-Ching Divination Tool",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F5F5F0",
+  "theme_color": "#8B0000",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

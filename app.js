@@ -6,6 +6,8 @@ let currentLines = []; // Array of integers: 6, 7, 8, 9
 // DOM Elements
 const castBtn = document.getElementById('cast-btn');
 const resetBtn = document.getElementById('reset-btn');
+const coinArea = document.getElementById('coin-area');
+const coins = document.querySelectorAll('.coin');
 const hexagramContainer = document.getElementById('hexagram-container');
 const instruction = document.getElementById('instruction');
 const resultArea = document.getElementById('result-area');
@@ -30,6 +32,31 @@ async function init() {
         instruction.innerHTML = '加载数据失败，请确保您在使用本地服务器运行此应用。';
     }
 }
+
+// Handle Cast Button
+castBtn.addEventListener('click', () => {
+    if (currentLines.length >= 6) return;
+    
+    // Haptic feedback
+    if (navigator.vibrate) {
+        navigator.vibrate([50, 50, 50]);
+    }
+    
+    // Disable button during animation
+    castBtn.disabled = true;
+    coinArea.classList.remove('hidden');
+    
+    // Add flipping class
+    coins.forEach(coin => coin.classList.add('flipping'));
+    
+    setTimeout(() => {
+        coins.forEach(coin => coin.classList.remove('flipping'));
+        coinArea.classList.add('hidden');
+        castBtn.disabled = false;
+        
+        handleCast();
+    }, 1000);
+});
 
 // Question UI Logic
 const questionInput = document.getElementById('question-input');
@@ -160,6 +187,9 @@ function processResult() {
     // Setup AI Prompt
     setupCopyPrompt(origHex, changedHex, movingIndices);
     
+    // Save to history
+    saveHistory(origHex, changedHex, movingIndices);
+    
     // Auto scroll to results
     setTimeout(() => {
         resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -170,17 +200,44 @@ function setupLocalInterpretation(origHex, changedHex, movingIndices) {
     const aiContent = document.getElementById('ai-interpretation-content');
     const userQuestion = questionInput.value.trim() || '此事';
     
-    let html = `<p style="margin-bottom:8px;"><strong>关于【${userQuestion}】的运势解析：</strong></p>`;
+    let html = `<p style="margin-bottom:12px; font-size:1.05rem;"><strong>关于【${userQuestion}】的运势解析：</strong></p>`;
     
-    const origMeaning = hexagramInterpretations[origHex.name] || '请参考古文卦辞，或使用下方一键复制给AI解析。';
-    html += `<p style="margin-bottom:8px;"><strong>本卦《${origHex.name}》：</strong>${origMeaning}</p>`;
+    const origData = hexagramInterpretations[origHex.name] || { general: '暂无解析', career: '暂无解析', love: '暂无解析' };
     
+    html += `<div style="margin-bottom:15px; padding:10px; background:#f5f5f0; border-radius:5px;">
+                <p style="margin-bottom:8px; color:var(--accent-color);"><strong>【本卦 - ${origHex.name}】综合运势：</strong></p>
+                <p>${origData.general}</p>
+             </div>`;
+             
+    html += `<div style="margin-bottom:15px; display:flex; gap:10px;">
+                <div style="flex:1; padding:10px; border:1px solid #ddd; border-radius:5px;">
+                    <p style="color:#555; font-weight:bold; margin-bottom:5px;">💼 事业财运</p>
+                    <p style="font-size:0.9rem;">${origData.career}</p>
+                </div>
+                <div style="flex:1; padding:10px; border:1px solid #ddd; border-radius:5px;">
+                    <p style="color:#555; font-weight:bold; margin-bottom:5px;">❤️ 感情婚姻</p>
+                    <p style="font-size:0.9rem;">${origData.love}</p>
+                </div>
+             </div>`;
+
     if (movingIndices.length > 0) {
-        html += `<p style="color:#666; font-size: 0.85rem; margin-bottom:8px;"><em>(注：此卦有动爻，说明事情还在发展变化中，最终结局很大程度受【之卦】影响。)</em></p>`;
-        const changedMeaning = hexagramInterpretations[changedHex.name] || '请参考之卦古文卦辞。';
-        html += `<p><strong>之卦《${changedHex.name}》：</strong>${changedMeaning}</p>`;
+        html += `<p style="color:var(--accent-color); font-weight:bold; margin: 15px 0 5px;">【变数与指引 - 动爻辞】</p>`;
+        html += `<ul style="list-style:none; margin-bottom:15px; padding-left:0;">`;
+        movingIndices.forEach(idx => {
+            const yaoLine = origHex.lines ? origHex.lines[idx] : null;
+            if (yaoLine) {
+                html += `<li style="margin-bottom:8px; padding:8px; background:#fff; border-left:3px solid #666; font-size:0.9rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">${yaoLine.scripture}</li>`;
+            }
+        });
+        html += `</ul>`;
+        
+        const changedData = hexagramInterpretations[changedHex.name] || { general: '暂无解析' };
+        html += `<div style="padding:10px; border-top:1px dashed #ccc;">
+                    <p style="margin-bottom:8px; color:#666;"><strong>【之卦 - ${changedHex.name}】最终走向参考：</strong></p>
+                    <p style="font-size:0.9rem; color:#555;">${changedData.general}</p>
+                 </div>`;
     } else {
-        html += `<p style="color:#666; font-size: 0.85rem;"><em>(注：此为六爻纯静之卦，说明目前局势相对稳定，没有大的变数，顺其自然即可。)</em></p>`;
+        html += `<p style="color:#666; font-size: 0.85rem; text-align:center; margin-top:15px;"><em>(注：此为六爻纯静之卦，说明目前局势相对稳定，没有大的变数，顺其自然即可。)</em></p>`;
     }
     
     aiContent.innerHTML = html;
@@ -222,13 +279,9 @@ function setupCopyPrompt(origHex, changedHex, movingIndices) {
 }
 
 function handleCast() {
-    if (currentLines.length >= 6) return;
-
-    instruction.classList.add('hidden');
-    
-    const value = castLine();
-    currentLines.push(value);
-    drawLine(value);
+    const val = castLine();
+    currentLines.push(val);
+    drawLine(val);
 
     castBtn.innerText = `起卦 (${currentLines.length}/6)`;
 
@@ -249,9 +302,67 @@ function resetApp() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Event Listeners
-castBtn.addEventListener('click', handleCast);
 resetBtn.addEventListener('click', resetApp);
+
+// History Modal Logic
+const historyBtn = document.getElementById('history-btn');
+const historyModal = document.getElementById('history-modal');
+const closeHistoryBtn = document.getElementById('close-history-btn');
+const historyList = document.getElementById('history-list');
+const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+function getHistory() {
+    return JSON.parse(localStorage.getItem('divination_history') || '[]');
+}
+
+function saveHistory(origHex, changedHex, movingIndices) {
+    const userQuestion = questionInput.value.trim() || '某事';
+    const history = getHistory();
+    const newEntry = {
+        date: new Date().toLocaleString(),
+        question: userQuestion,
+        origHexName: origHex.name,
+        changedHexName: changedHex ? changedHex.name : null,
+        moving: movingIndices.length > 0
+    };
+    history.unshift(newEntry);
+    localStorage.setItem('divination_history', JSON.stringify(history));
+}
+
+function renderHistory() {
+    const history = getHistory();
+    if (history.length === 0) {
+        historyList.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">暂无排盘记录</p>';
+        return;
+    }
+    
+    historyList.innerHTML = history.map(item => `
+        <div class="history-item">
+            <div class="history-date">${item.date}</div>
+            <div class="history-question">所求：${item.question}</div>
+            <div class="history-hex">
+                本卦：${item.origHexName} 
+                ${item.moving ? `→ 之卦：${item.changedHexName}` : '(无动爻静卦)'}
+            </div>
+        </div>
+    `).join('');
+}
+
+historyBtn.addEventListener('click', () => {
+    renderHistory();
+    historyModal.classList.remove('hidden');
+});
+
+closeHistoryBtn.addEventListener('click', () => {
+    historyModal.classList.add('hidden');
+});
+
+clearHistoryBtn.addEventListener('click', () => {
+    if(confirm('确定要清除所有历史记录吗？')) {
+        localStorage.removeItem('divination_history');
+        renderHistory();
+    }
+});
 
 // Run init
 init();

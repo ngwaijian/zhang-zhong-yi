@@ -69,8 +69,9 @@
                 </div>
 
                 <div class="ai-prompt-area">
-                    <button id="copy-prompt-btn" class="btn secondary-btn">复制详尽提示词 (供AI深度解卦)</button>
-                    <p class="tip-text">需要更详细的解读？复制提示词后发给ChatGPT/Claude</p>
+                    <button id="generate-poster-btn" class="btn secondary-btn" style="margin-bottom: 10px; border-color:#e6c27a; color:#b08a40;">📸 生成专属运势海报</button>
+                    <button id="copy-prompt-btn" class="btn secondary-btn">🤖 一键复制发给AI大师详批</button>
+                    <p class="tip-text">你可以将复制的内容发送给 ChatGPT / 文心一言 等大模型获取详细解答</p>
                 </div>
                 
                 <div style="margin-top: 30px; padding-bottom: 20px;">
@@ -95,7 +96,31 @@
             <button id="clear-history-btn" class="btn secondary-btn" style="margin-top: 15px; width: 100%; border: none; color: #999;">清除所有记录</button>
         </div>
     </div>
+    <!-- Poster Template (Hidden by default, used for rendering) -->
+    <div id="poster-template" class="poster-template hidden">
+        <div class="poster-header">
+            <h1 class="poster-title">掌中易</h1>
+            <p class="poster-subtitle">心诚则灵 · 随身智库</p>
+        </div>
+        <div class="poster-body">
+            <p class="poster-question" id="poster-question">所求之事：</p>
+            <div class="poster-hexagram">
+                <div class="poster-hex-symbol" id="poster-hex-symbol">䷀</div>
+                <div class="poster-hex-name" id="poster-hex-name">乾为天</div>
+            </div>
+            <div class="poster-interpretation" id="poster-interpretation">
+                <!-- interpretation text injected here -->
+            </div>
+        </div>
+        <div class="poster-footer">
+            <p>长按识别或扫码，体验【掌中易】</p>
+            <!-- A placeholder for QR code -->
+            <div class="qr-placeholder">二维码</div>
+        </div>
+    </div>
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="hex_interpretations.js"></script>
     <script src="app.js"></script>
 </body>

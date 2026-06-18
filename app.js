@@ -197,6 +197,8 @@ function processResult() {
 }
 
 function setupLocalInterpretation(origHex, changedHex, movingIndices) {
+    currentPosterData = { origHex, changedHex, movingIndices };
+    
     const aiContent = document.getElementById('ai-interpretation-content');
     const userQuestion = questionInput.value.trim() || '此事';
     
@@ -310,6 +312,15 @@ const historyModal = document.getElementById('history-modal');
 const closeHistoryBtn = document.getElementById('close-history-btn');
 const historyList = document.getElementById('history-list');
 const clearHistoryBtn = document.getElementById('clear-history-btn');
+const generatePosterBtn = document.getElementById('generate-poster-btn');
+const posterTemplate = document.getElementById('poster-template');
+const posterQuestion = document.getElementById('poster-question');
+const posterHexSymbol = document.getElementById('poster-hex-symbol');
+const posterHexName = document.getElementById('poster-hex-name');
+const posterInterpretation = document.getElementById('poster-interpretation');
+
+// State
+let currentPosterData = null;
 
 function getHistory() {
     return JSON.parse(localStorage.getItem('divination_history') || '[]');
@@ -363,6 +374,66 @@ clearHistoryBtn.addEventListener('click', () => {
         renderHistory();
     }
 });
+
+// Poster Generation Logic
+async function generatePoster() {
+    if (!currentPosterData || !window.html2canvas) {
+        alert('功能加载中，请稍后再试...');
+        return;
+    }
+    
+    const { origHex, changedHex, movingIndices } = currentPosterData;
+    const userQuestion = questionInput.value.trim() || '某事';
+    
+    posterQuestion.innerText = `所求之事：${userQuestion}`;
+    posterHexSymbol.innerText = origHex.symbol;
+    posterHexName.innerText = origHex.name;
+    
+    const origData = hexagramInterpretations[origHex.name] || { general: '暂无解析' };
+    let interpHTML = `<p style="margin-bottom:10px;"><strong>【核心解析】</strong><br>${origData.general}</p>`;
+    
+    if (movingIndices.length > 0) {
+        interpHTML += `<p><strong>【变数提示】</strong><br>此卦有动爻，说明事情还在发展变化中，未来走向请参考之卦《${changedHex.name}》</p>`;
+    } else {
+        interpHTML += `<p><strong>【状态提示】</strong><br>此卦为纯静之卦，局势稳定，顺其自然即可。</p>`;
+    }
+    
+    posterInterpretation.innerHTML = interpHTML;
+    
+    // Temporarily show the template for rendering
+    posterTemplate.classList.remove('hidden');
+    
+    try {
+        const originalBtnText = generatePosterBtn.innerText;
+        generatePosterBtn.innerText = '正在生成海报...';
+        generatePosterBtn.disabled = true;
+        
+        const canvas = await html2canvas(posterTemplate, {
+            scale: 2, // High resolution
+            useCORS: true,
+            backgroundColor: null
+        });
+        
+        const link = document.createElement('a');
+        link.download = `掌中易-${origHex.name}卦-${new Date().getTime()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        generatePosterBtn.innerText = originalBtnText;
+        generatePosterBtn.disabled = false;
+    } catch (e) {
+        console.error("Poster generation failed", e);
+        alert('生成海报失败，请稍后再试');
+        generatePosterBtn.innerText = '📸 生成专属运势海报';
+        generatePosterBtn.disabled = false;
+    } finally {
+        posterTemplate.classList.add('hidden');
+    }
+}
+
+if (generatePosterBtn) {
+    generatePosterBtn.addEventListener('click', generatePoster);
+}
 
 // Run init
 init();

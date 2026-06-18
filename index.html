@@ -14,22 +14,29 @@
         <header class="header">
             <h1>掌中易</h1>
             <p class="subtitle">心诚则灵</p>
-            <button id="history-btn" class="header-btn" title="历史记录">📜</button>
+            <button id="daily-draw-btn" class="header-btn" title="今日运势" style="right: 60px;">🌟</button>
+            <button id="history-btn" class="header-btn" title="历史记录" style="right: 20px;">📜</button>
         </header>
 
         <main class="main-content">
             <div class="question-area">
-                <input type="text" id="question-input" placeholder="请输入您所求之事..." autocomplete="off">
-                <div class="suggestion-chips">
-                    <span class="chip">感情</span>
-                    <span class="chip">婚姻</span>
+                <input type="text" id="question-input" class="question-input" placeholder="请替换为您所求之事 (选填)" maxlength="30">
+                <div class="chip-container">
                     <span class="chip">事业</span>
+                    <span class="chip">感情</span>
                     <span class="chip">财运</span>
-                    <span class="chip">跳槽创业</span>
-                    <span class="chip">考试升学</span>
-                    <span class="chip">官司诉讼</span>
                     <span class="chip">健康</span>
+                    <span class="chip">跳槽创业</span>
+                    <span class="chip">官司诉讼</span>
                 </div>
+                <details class="bazi-details" style="margin-top:15px; text-align:left; font-size:0.9rem; color:#666;">
+                    <summary style="cursor:pointer; color:var(--accent-color);">🌟 高级：绑定生辰八字 (选填)</summary>
+                    <div style="margin-top:10px; display:flex; gap:10px;">
+                        <input type="date" id="bazi-date" style="flex:2; padding:8px; border:1px solid #ddd; border-radius:5px; font-family:inherit;">
+                        <input type="time" id="bazi-time" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:5px; font-family:inherit;">
+                    </div>
+                    <p style="font-size:0.8rem; margin-top:5px; color:#999;">绑定后，AI 详解将自动结合您的八字五行进行推演。</p>
+                </details>
             </div>
 
             <div id="coin-area" class="coin-area hidden">
@@ -121,6 +128,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
     <script src="hex_interpretations.js"></script>
     <script src="app.js"></script>
 </body>

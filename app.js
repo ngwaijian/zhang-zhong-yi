@@ -202,7 +202,10 @@ function setupLocalInterpretation(origHex, changedHex, movingIndices) {
     const aiContent = document.getElementById('ai-interpretation-content');
     const userQuestion = questionInput.value.trim() || '此事';
     
-    let html = `<p style="margin-bottom:12px; font-size:1.05rem;"><strong>关于【${userQuestion}】的运势解析：</strong></p>`;
+    let html = `<div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <p style="margin-bottom:0; font-size:1.05rem;"><strong>关于【${userQuestion}】的运势：</strong></p>
+                    <button id="audio-read-btn" style="background:none; border:1px solid var(--accent-color); color:var(--accent-color); border-radius:20px; padding:4px 10px; font-size:0.8rem; cursor:pointer;">🔊 语音解读</button>
+                </div>`;
     
     const origData = hexagramInterpretations[origHex.name] || { general: '暂无解析', career: '暂无解析', love: '暂无解析' };
     
@@ -243,11 +246,52 @@ function setupLocalInterpretation(origHex, changedHex, movingIndices) {
     }
     
     aiContent.innerHTML = html;
+    
+    const audioBtn = document.getElementById('audio-read-btn');
+    if (audioBtn) {
+        audioBtn.addEventListener('click', () => {
+            if (!window.speechSynthesis) {
+                alert('您的浏览器不支持语音播报');
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const textToRead = `关于${userQuestion}的运势解析。本卦，${origHex.name}。综合运势：${origData.general}。事业财运：${origData.career}。感情婚姻：${origData.love}。`;
+            const utterThis = new SpeechSynthesisUtterance(textToRead);
+            utterThis.lang = 'zh-CN';
+            utterThis.rate = 0.95;
+            utterThis.pitch = 0.8;
+            window.speechSynthesis.speak(utterThis);
+        });
+    }
 }
+
+const baziDate = document.getElementById('bazi-date');
+const baziTime = document.getElementById('bazi-time');
 
 function setupCopyPrompt(origHex, changedHex, movingIndices) {
     const userQuestion = questionInput.value.trim() || '某事';
     let prompt = `你现在是一位非常有经验老道的易学师父（解签人）。我用掌中易刚刚起了一卦，心中所求之事是【${userQuestion}】。\n\n`;
+    
+    if (baziDate && baziDate.value) {
+        try {
+            const [y, m, d] = baziDate.value.split('-');
+            let h = 12, min = 0;
+            if (baziTime && baziTime.value) {
+                const parts = baziTime.value.split(':');
+                h = parseInt(parts[0]);
+                min = parseInt(parts[1]);
+            }
+            if (window.Solar && window.Lunar) {
+                const solar = window.Solar.fromYmdHms(parseInt(y), parseInt(m), parseInt(d), h, min, 0);
+                const lunar = solar.getLunar();
+                const baziStr = lunar.getBaZi().join(' ');
+                prompt += `特别提醒：我的生辰八字是【${baziStr}】。请你在解卦时，务必结合我的八字五行生克，给出针对我个人的深度解析。\n\n`;
+            }
+        } catch (e) {
+            console.error('Bazi error:', e);
+        }
+    }
+    
     prompt += `我得到的本卦是《${origHex.name}》卦，卦辞是：“${origHex.scripture}”。\n`;
     
     if (movingIndices.length > 0) {
@@ -433,6 +477,52 @@ async function generatePoster() {
 
 if (generatePosterBtn) {
     generatePosterBtn.addEventListener('click', generatePoster);
+}
+
+// Daily Draw Logic
+const dailyDrawBtn = document.getElementById('daily-draw-btn');
+
+function getDailySeed() {
+    const today = new Date();
+    // Unique seed for each day per user (could add a username, but we use device)
+    return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+}
+
+function seededRandom(seed) {
+    var x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+}
+
+if (dailyDrawBtn) {
+    dailyDrawBtn.addEventListener('click', () => {
+        resetApp();
+        
+        const seed = getDailySeed();
+        let currentSeed = seed;
+        
+        // Auto-cast 6 times
+        for(let i=0; i<6; i++) {
+            currentSeed++;
+            const rand = seededRandom(currentSeed);
+            // Bias slightly to static lines (7, 8) to avoid too many moving lines for a daily draw
+            let val;
+            if (rand < 0.1) val = 6;
+            else if (rand < 0.5) val = 7;
+            else if (rand < 0.9) val = 8;
+            else val = 9;
+            
+            currentLines.push(val);
+            drawLine(val);
+        }
+        
+        questionInput.value = "今日运势";
+        instruction.classList.add('hidden');
+        
+        castBtn.innerText = '起卦 (6/6)';
+        castBtn.classList.add('hidden');
+        
+        processResult();
+    });
 }
 
 // Run init

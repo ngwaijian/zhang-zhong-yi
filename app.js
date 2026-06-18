@@ -510,5 +510,13 @@ if (dailyDrawBtn) {
     });
 }
 
+// Title Refresh Logic
+const appTitle = document.getElementById('app-title');
+if (appTitle) {
+    appTitle.addEventListener('click', () => {
+        location.reload();
+    });
+}
+
 // Run init
 init();

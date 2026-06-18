@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zhang-zhong-yi-v2';
+const CACHE_NAME = 'zhang-zhong-yi-v3';
 const ASSETS = [
     './',
     './index.html',

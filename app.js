@@ -378,7 +378,8 @@ function saveHistory(origHex, changedHex, movingIndices) {
         question: userQuestion,
         origHexName: origHex.name,
         changedHexName: changedHex ? changedHex.name : null,
-        moving: movingIndices.length > 0
+        moving: movingIndices.length > 0,
+        lines: [...currentLines]
     };
     history.unshift(newEntry);
     localStorage.setItem('divination_history', JSON.stringify(history));
@@ -391,17 +392,44 @@ function renderHistory() {
         return;
     }
     
-    historyList.innerHTML = history.map(item => `
-        <div class="history-item">
+    historyList.innerHTML = history.map((item, index) => `
+        <div class="history-item" onclick="restoreHistory(${index})" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">
             <div class="history-date">${item.date}</div>
             <div class="history-question">所求：${item.question}</div>
             <div class="history-hex">
                 本卦：${item.origHexName} 
                 ${item.moving ? `→ 之卦：${item.changedHexName}` : '(无动爻静卦)'}
             </div>
+            <div style="text-align: right; font-size: 0.8rem; color: var(--accent-color); margin-top: 5px;">查看详情 ➔</div>
         </div>
     `).join('');
 }
+
+window.restoreHistory = function(index) {
+    const history = getHistory();
+    const item = history[index];
+    if (!item || !item.lines) {
+        alert('此历史记录版本过旧，无法回放详情。');
+        return;
+    }
+    
+    // Clear modal
+    historyModal.classList.add('hidden');
+    
+    // Reset and restore state
+    resetApp();
+    questionInput.value = item.question;
+    currentLines = [...item.lines];
+    
+    // Redraw UI
+    currentLines.forEach(val => drawLine(val));
+    instruction.classList.add('hidden');
+    castBtn.innerText = '起卦 (6/6)';
+    castBtn.classList.add('hidden');
+    
+    // Process results
+    processResult();
+};
 
 historyBtn.addEventListener('click', () => {
     renderHistory();

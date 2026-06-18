@@ -234,7 +234,6 @@ function handleCast() {
 
     if (currentLines.length === 6) {
         castBtn.classList.add('hidden');
-        resetBtn.classList.remove('hidden');
         processResult();
     }
 }
@@ -244,7 +243,6 @@ function resetApp() {
     hexagramContainer.innerHTML = '<div class="placeholder-text" id="instruction">请静心默念所求之事<br>点击下方按钮起卦</div>';
     resultArea.classList.add('hidden');
     castBtn.classList.remove('hidden');
-    resetBtn.classList.add('hidden');
     castBtn.innerText = '起卦 (0/6)';
     
     // Scroll back to top

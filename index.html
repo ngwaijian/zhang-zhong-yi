@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>掌中易 - Zhang Zhong Yi</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>掌中易</h1>
+            <p class="subtitle">心诚则灵</p>
+        </header>
+
+        <main class="main-content">
+            <div id="hexagram-container" class="hexagram-container">
+                <!-- Lines will be dynamically generated here from bottom to top -->
+                <div class="placeholder-text" id="instruction">请静心默念所求之事<br>点击下方按钮起卦</div>
+            </div>
+
+            <div id="result-area" class="result-area hidden">
+                <div class="hexagram-details">
+                    <div class="original-hex">
+                        <h2 id="orig-name">本卦</h2>
+                        <div id="orig-symbol" class="symbol"></div>
+                        <p id="orig-scripture" class="scripture"></p>
+                    </div>
+                    <div class="arrow-indicator hidden" id="change-arrow">➔</div>
+                    <div class="changed-hex hidden" id="changed-hex-container">
+                        <h2 id="changed-name">之卦</h2>
+                        <div id="changed-symbol" class="symbol"></div>
+                        <p id="changed-scripture" class="scripture"></p>
+                    </div>
+                </div>
+                
+                <div id="moving-lines-area" class="moving-lines-area hidden">
+                    <h3>动爻辞</h3>
+                    <ul id="moving-lines-list"></ul>
+                </div>
+
+                <div class="ai-prompt-area">
+                    <button id="copy-prompt-btn" class="btn secondary-btn">复制解签提示词 (供AI解卦)</button>
+                    <p class="tip-text">复制提示词后，发给ChatGPT/Claude为你深度解卦</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <button id="cast-btn" class="btn primary-btn">起卦 (0/6)</button>
+            <button id="reset-btn" class="btn reset-btn hidden">重新起卦</button>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

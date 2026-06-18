@@ -104,7 +104,7 @@ body {
     border-bottom-color: var(--accent-color);
 }
 
-.suggestion-chips {
+.chip-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -121,6 +121,7 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     border: 1px solid transparent;
+    white-space: nowrap;
 }
 
 .chip:hover, .chip.active {

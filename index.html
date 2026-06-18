@@ -56,9 +56,14 @@
                     <ul id="moving-lines-list"></ul>
                 </div>
 
+                <div class="ai-interpretation-area" style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-left: 4px solid var(--accent-color);">
+                    <h3 style="color: var(--accent-color); margin-bottom: 10px;">💡 易师白话解卦</h3>
+                    <div id="ai-interpretation-content" style="line-height: 1.6; color: #333; font-size: 0.95rem;"></div>
+                </div>
+
                 <div class="ai-prompt-area">
-                    <button id="copy-prompt-btn" class="btn secondary-btn">复制解签提示词 (供AI解卦)</button>
-                    <p class="tip-text">复制提示词后，发给ChatGPT/Claude为你深度解卦</p>
+                    <button id="copy-prompt-btn" class="btn secondary-btn">复制详尽提示词 (供AI深度解卦)</button>
+                    <p class="tip-text">需要更详细的解读？复制提示词后发给ChatGPT/Claude</p>
                 </div>
             </div>
         </main>
@@ -68,6 +73,7 @@
             <button id="reset-btn" class="btn reset-btn hidden">重新起卦</button>
         </footer>
     </div>
+    <script src="hex_interpretations.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ const ASSETS = [
     './index.html',
     './styles.css',
     './app.js',
+    './hex_interpretations.js',
     './manifest.json',
     './icon.svg',
     './open-iching-main/iching/iching.json'

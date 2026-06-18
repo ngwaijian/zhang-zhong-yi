@@ -154,6 +154,9 @@ function processResult() {
 
     resultArea.classList.remove('hidden');
     
+    // Setup Local Interpretation
+    setupLocalInterpretation(origHex, changedHex, movingIndices);
+    
     // Setup AI Prompt
     setupCopyPrompt(origHex, changedHex, movingIndices);
     
@@ -161,6 +164,26 @@ function processResult() {
     setTimeout(() => {
         resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
+}
+
+function setupLocalInterpretation(origHex, changedHex, movingIndices) {
+    const aiContent = document.getElementById('ai-interpretation-content');
+    const userQuestion = questionInput.value.trim() || '此事';
+    
+    let html = `<p style="margin-bottom:8px;"><strong>关于【${userQuestion}】的运势解析：</strong></p>`;
+    
+    const origMeaning = hexagramInterpretations[origHex.name] || '请参考古文卦辞，或使用下方一键复制给AI解析。';
+    html += `<p style="margin-bottom:8px;"><strong>本卦《${origHex.name}》：</strong>${origMeaning}</p>`;
+    
+    if (movingIndices.length > 0) {
+        html += `<p style="color:#666; font-size: 0.85rem; margin-bottom:8px;"><em>(注：此卦有动爻，说明事情还在发展变化中，最终结局很大程度受【之卦】影响。)</em></p>`;
+        const changedMeaning = hexagramInterpretations[changedHex.name] || '请参考之卦古文卦辞。';
+        html += `<p><strong>之卦《${changedHex.name}》：</strong>${changedMeaning}</p>`;
+    } else {
+        html += `<p style="color:#666; font-size: 0.85rem;"><em>(注：此为六爻纯静之卦，说明目前局势相对稳定，没有大的变数，顺其自然即可。)</em></p>`;
+    }
+    
+    aiContent.innerHTML = html;
 }
 
 function setupCopyPrompt(origHex, changedHex, movingIndices) {
